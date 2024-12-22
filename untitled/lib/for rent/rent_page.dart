@@ -4,12 +4,14 @@ import '../our_services_page.dart';
 import 'HotelListPage.dart';
 import 'PropertyListPage.dart';
 import 'PropertyRentPage.dart';
+import 'SellPage.dart';
+import 'DashboardPage.dart'; // استيراد صفحة Dashboard
 
 class ForRentHomePage extends StatelessWidget {
   final String userName; // User's name to display
   final String destination; // Selected destination
 
-  ForRentHomePage({required this.userName, required this.destination});
+  ForRentHomePage({required this.userName, required this.destination, required String selectedRegion});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class ForRentHomePage extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    "Welcome, $userName!", // Display user's name
+                    "Welcome, $userName", // Display user's name
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -51,6 +53,20 @@ class ForRentHomePage extends StatelessWidget {
               ),
             ),
             // Drawer Items
+            _buildDrawerItem(
+              context,
+              icon: Icons.dashboard,
+              label: 'Dashboard',
+              color: Colors.purple,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DashboardWithLoginPage(), // الانتقال إلى صفحة Dashboard
+                  ),
+                );
+              },
+            ),
             _buildDrawerItem(
               context,
               icon: Icons.shopping_cart,
@@ -229,6 +245,25 @@ class ForRentHomePage extends StatelessWidget {
                             ),
                           );
                         },
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SellPage(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        ),
+                        child: Text("Sell"),
                       ),
                       _buildOptionButton(
                         context,

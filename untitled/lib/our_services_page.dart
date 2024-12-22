@@ -181,7 +181,7 @@ class _OurServicesPageState extends State<OurServicesPage> {
                                         MaterialPageRoute(
                                           builder: (context) => ForRentHomePage(
                                             userName: userName,
-                                            destination: 'Dahab',
+                                            destination: 'Dahab', selectedRegion: '',
                                           ),
                                         ),
                                       );
@@ -196,7 +196,7 @@ class _OurServicesPageState extends State<OurServicesPage> {
                                         MaterialPageRoute(
                                           builder: (context) => ForRentHomePage(
                                             userName: userName,
-                                            destination: 'Saint Catherine',
+                                            destination: 'Saint Catherine', selectedRegion: '',
                                           ),
                                         ),
                                       );
@@ -211,7 +211,7 @@ class _OurServicesPageState extends State<OurServicesPage> {
                                         MaterialPageRoute(
                                           builder: (context) => ForRentHomePage(
                                             userName: userName,
-                                            destination: 'Sharm El Sheikh',
+                                            destination: 'Sharm El Sheikh', selectedRegion: '',
                                           ),
                                         ),
                                       );
@@ -226,7 +226,7 @@ class _OurServicesPageState extends State<OurServicesPage> {
                                         MaterialPageRoute(
                                           builder: (context) => ForRentHomePage(
                                             userName: userName,
-                                            destination: 'El Tor',
+                                            destination: 'El Tor', selectedRegion: '',
                                           ),
                                         ),
                                       );
