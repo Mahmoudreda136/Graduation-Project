@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../globals.dart';
+import 'AddEditPropertyDialog.dart';
 import 'globalforrent.dart';
 
 class DashboardWithLoginPage extends StatefulWidget {
@@ -8,26 +10,9 @@ class DashboardWithLoginPage extends StatefulWidget {
 }
 
 class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
-  final TextEditingController _passwordController = TextEditingController();
-  final String _correctPassword = "admin2134"; // الرقم السري الصحيح
-  bool _isLoggedIn = false; // حالة تسجيل الدخول
+  bool _isLoggedIn = true; // No password, login is defaulted to true
   String selectedRegion = 'Dahab';
   String selectedCategory = 'For Rent';
-
-  void _login() {
-    if (_passwordController.text == _correctPassword) {
-      setState(() {
-        _isLoggedIn = true; // تغيير حالة تسجيل الدخول
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Incorrect Password! Please try again."),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
 
   void _showEditPropertyDialog(Map<String, dynamic> property, int index) {
     showDialog(
@@ -38,7 +23,10 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
           property: property,
           onConfirm: (updatedProperty) {
             setState(() {
-              RegionData.properties[selectedRegion]![selectedCategory]![index] = updatedProperty;
+              RegionData.properties[selectedRegion]![selectedCategory]![index] = {
+                ...property, // الاحتفاظ بالبيانات القديمة
+                ...updatedProperty, // تحديث الحقول
+              };
             });
           },
         );
@@ -71,10 +59,19 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
     );
   }
 
-  Widget _buildStatisticsSection() {
-    final forRentCount = RegionData.properties[selectedRegion]?['For Rent']?.length ?? 0;
-    final forSaleCount = RegionData.properties[selectedRegion]?['For Sale']?.length ?? 0;
-    final hotelsCount = RegionData.properties[selectedRegion]?['Hotels']?.length ?? 0;
+  Widget _buildStatisticsSection(List<dynamic> userProperties) {
+    // Filter properties by category and user
+    final forRentCount = userProperties
+        .where((property) => property['category'] == 'For Rent' && property['user']['email'] == registeredEmail)
+        .length;
+
+    final forSaleCount = userProperties
+        .where((property) => property['category'] == 'For Sale' && property['user']['email'] == registeredEmail)
+        .length;
+
+    final hotelsCount = userProperties
+        .where((property) => property['category'] == 'Hotels' && property['user']['email'] == registeredEmail)
+        .length;
 
     return Card(
       elevation: 6,
@@ -157,49 +154,10 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLoggedIn) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text("Login"),
-          backgroundColor: Colors.brown,
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Enter Password to Access Dashboard",
-                  style: TextStyle(fontSize: 18),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true, // إخفاء النص عند الكتابة
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown,
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  ),
-                  child: Text("Login"),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    final properties = RegionData.properties[selectedRegion]![selectedCategory]!;
+    // Filter the properties for the selected category and current user
+    final userProperties = RegionData.properties[selectedRegion]?[selectedCategory]?.where((property) {
+      return property['user']['email'] == registeredEmail;
+    }).toList() ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -210,7 +168,6 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // فلاتر المنطقة والفئة
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -245,12 +202,10 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
               ],
             ),
             SizedBox(height: 16),
-            // قسم الإحصائيات
-            _buildStatisticsSection(),
+            _buildStatisticsSection(userProperties),
             SizedBox(height: 16),
-            // الجدول
             Expanded(
-              child: properties.isNotEmpty
+              child: userProperties.isNotEmpty
                   ? Card(
                 elevation: 6,
                 shape: RoundedRectangleBorder(
@@ -272,9 +227,9 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
                         DataColumn(label: Text("Actions")),
                       ],
                       rows: List<DataRow>.generate(
-                        properties.length,
+                        userProperties.length,
                             (index) {
-                          final property = properties[index];
+                          final property = userProperties[index];
                           return DataRow(cells: [
                             DataCell(Text(property["user"]["name"] ?? "Unknown")),
                             DataCell(Text(property["address"] ?? "N/A")),
@@ -321,104 +276,6 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class AddEditPropertyDialog extends StatefulWidget {
-  final String title;
-  final Map<String, dynamic>? property;
-  final Function(Map<String, dynamic>) onConfirm;
-
-  AddEditPropertyDialog({
-    required this.title,
-    this.property,
-    required this.onConfirm,
-  });
-
-  @override
-  _AddEditPropertyDialogState createState() => _AddEditPropertyDialogState();
-}
-
-class _AddEditPropertyDialogState extends State<AddEditPropertyDialog> {
-  late TextEditingController nameController;
-  late TextEditingController addressController;
-  late TextEditingController priceController;
-  late TextEditingController phoneController;
-  late TextEditingController floorController;
-  late TextEditingController buildingController;
-  late TextEditingController apartmentController;
-
-  @override
-  void initState() {
-    super.initState();
-    nameController = TextEditingController(text: widget.property?["user"]["name"] ?? "");
-    addressController = TextEditingController(text: widget.property?["address"] ?? "");
-    priceController = TextEditingController(text: widget.property?["price"]?.toString() ?? "");
-    phoneController = TextEditingController(text: widget.property?["user"]["phone"] ?? "");
-    floorController = TextEditingController(text: widget.property?["floor"] ?? "");
-    buildingController = TextEditingController(text: widget.property?["building_num"] ?? "");
-    apartmentController = TextEditingController(text: widget.property?["apartment_num"] ?? "");
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.title),
-      content: SingleChildScrollView(
-        child: Column(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: "Name"),
-            ),
-            TextField(
-              controller: addressController,
-              decoration: InputDecoration(labelText: "Address"),
-            ),
-            TextField(
-              controller: priceController,
-              decoration: InputDecoration(labelText: "Price"),
-            ),
-            TextField(
-              controller: phoneController,
-              decoration: InputDecoration(labelText: "Phone"),
-            ),
-            TextField(
-              controller: floorController,
-              decoration: InputDecoration(labelText: "Floor"),
-            ),
-            TextField(
-              controller: buildingController,
-              decoration: InputDecoration(labelText: "Building Number"),
-            ),
-            TextField(
-              controller: apartmentController,
-              decoration: InputDecoration(labelText: "Apartment Number"),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text("Cancel"),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            widget.onConfirm({
-              "user": {"name": nameController.text, "phone": phoneController.text},
-              "address": addressController.text,
-              "price": priceController.text,
-              "floor": floorController.text,
-              "building_num": buildingController.text,
-              "apartment_num": apartmentController.text,
-            });
-            Navigator.pop(context);
-          },
-          child: Text("Save"),
-        ),
-      ],
     );
   }
 }

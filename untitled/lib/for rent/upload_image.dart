@@ -47,7 +47,7 @@ class _UploadImagesPageState extends State<UploadImagesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Upload Images"),
-        backgroundColor: Colors.brown,
+        backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -83,7 +83,7 @@ class _UploadImagesPageState extends State<UploadImagesPage> {
                 ElevatedButton(
                   onPressed: _pickImages,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown,
+                    backgroundColor: Colors.black,
                   ),
                   child: Text("Upload Images"),
                 ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:untitled/planning/planning_page.dart';
 import 'edit_profile_page.dart';
 import 'login_page.dart';
 import 'globals.dart';
@@ -47,8 +48,8 @@ class _OurServicesPageState extends State<OurServicesPage> {
   Widget build(BuildContext context) {
     final List<Map<String, Object>> services = [
       {'icon': Icons.local_taxi, 'title': 'Taxi'},
-      {'icon': Icons.map, 'title': 'AI Planning'},
       {'icon': Icons.hotel, 'title': 'For Rent'},
+      {'icon': Icons.event, 'title': 'Planning'},
       {'icon': Icons.delivery_dining, 'title': 'Delivery'},
     ];
 
@@ -163,70 +164,153 @@ class _OurServicesPageState extends State<OurServicesPage> {
                     title: service['title'] as String,
                     onTap: () {
                       if (service['title'] == 'For Rent') {
-                        // فتح نافذة اختيار الوجهة
+                        // فتح نافذة اختيار الوجهة لخدمة For Rent
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('Select Destination'),
+                              title: const Text('Select Destination'),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   ListTile(
-                                    title: Text('Dahab'),
+                                    title: const Text('Dahab'),
                                     onTap: () {
-                                      Navigator.pop(context); // إغلاق النافذة
+                                      Navigator.pop(context);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => ForRentHomePage(
                                             userName: userName,
-                                            destination: 'Dahab', selectedRegion: '',
+                                            destination: 'Dahab',
+                                            selectedRegion: '',
                                           ),
                                         ),
                                       );
                                     },
                                   ),
                                   ListTile(
-                                    title: Text('Saint Catherine'),
+                                    title: const Text('Saint Catherine'),
                                     onTap: () {
-                                      Navigator.pop(context); // إغلاق النافذة
+                                      Navigator.pop(context);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => ForRentHomePage(
                                             userName: userName,
-                                            destination: 'Saint Catherine', selectedRegion: '',
+                                            destination: 'Saint Catherine',
+                                            selectedRegion: '',
                                           ),
                                         ),
                                       );
                                     },
                                   ),
                                   ListTile(
-                                    title: Text('Sharm El Sheikh'),
+                                    title: const Text('Sharm El Sheikh'),
                                     onTap: () {
-                                      Navigator.pop(context); // إغلاق النافذة
+                                      Navigator.pop(context);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => ForRentHomePage(
                                             userName: userName,
-                                            destination: 'Sharm El Sheikh', selectedRegion: '',
+                                            destination: 'Sharm El Sheikh',
+                                            selectedRegion: '',
                                           ),
                                         ),
                                       );
                                     },
                                   ),
                                   ListTile(
-                                    title: Text('El Tor'),
+                                    title: const Text('El Tor'),
                                     onTap: () {
-                                      Navigator.pop(context); // إغلاق النافذة
+                                      Navigator.pop(context);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => ForRentHomePage(
                                             userName: userName,
-                                            destination: 'El Tor', selectedRegion: '',
+                                            destination: 'El Tor',
+                                            selectedRegion: '',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      } else if (service['title'] == 'Planning') {
+                        // فتح نافذة اختيار الوجهة لخدمة Planning
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Select Destination for Planning'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    title: const Text('Dahab'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PlanningHomePage(
+                                            userName: userName,
+                                            destination: 'Dahab',
+                                            selectedRegion: '',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: const Text('Saint Catherine'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PlanningHomePage(
+                                            userName: userName,
+                                            destination: 'Saint Catherine',
+                                            selectedRegion: '',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: const Text('Sharm El Sheikh'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PlanningHomePage(
+                                            userName: userName,
+                                            destination: 'Sharm El Sheikh',
+                                            selectedRegion: '',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: const Text('El Tor'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PlanningHomePage(
+                                            userName: userName,
+                                            destination: 'El Tor',
+                                            selectedRegion: '',
                                           ),
                                         ),
                                       );

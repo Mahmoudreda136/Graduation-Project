@@ -179,6 +179,18 @@ class ForRentHomePage extends StatelessWidget {
                 ),
               ],
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  'assets/images/f0febdc6891ac34bdc557cd07ea4cd28.jpg', // ضع مسار الصورة هنا
+                  height: 200, // ارتفاع الصورة
+                  width: double.infinity, // عرض الصورة
+                  fit: BoxFit.cover, // طريقة ملء الصورة
+                ),
+              ),
+            ),
             // Main Content
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -287,7 +299,7 @@ class ForRentHomePage extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            hintText: "Search anything...",
+                            hintText: "Search for Hotel, Rent, Buy, or Sale...",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(color: Colors.grey),
@@ -321,6 +333,7 @@ class ForRentHomePage extends StatelessWidget {
       ),
     );
   }
+
 
   // Drawer Item Builder
   Widget _buildDrawerItem(BuildContext context,

@@ -23,10 +23,11 @@ class MyApp extends StatelessWidget {
         userEmail: registeredEmail,
         userImage: userImage,
       )
-          : OurServicesPage(userName: '', userEmail: '', userImage: '',),
+          : DestinationsPage(),
     );
   }
 }
+
 
 class DestinationsPage extends StatefulWidget {
   final String? userName;

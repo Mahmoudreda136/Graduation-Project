@@ -11,11 +11,6 @@ class SellPage extends StatefulWidget {
 }
 
 class _SellPageState extends State<SellPage> {
-  final TextEditingController userNameController = TextEditingController();
-  final TextEditingController userNationalIdController = TextEditingController();
-  final TextEditingController userEmailController = TextEditingController();
-  final TextEditingController userPasswordController = TextEditingController();
-  final TextEditingController userPhoneController = TextEditingController();
   final TextEditingController fullAddressController = TextEditingController();
   final TextEditingController spaceController = TextEditingController();
   final TextEditingController numberOfRoomsController = TextEditingController();
@@ -39,11 +34,7 @@ class _SellPageState extends State<SellPage> {
   bool _validateFieldsForStep(int step) {
     switch (step) {
       case 0:
-        return userNameController.text.isNotEmpty &&
-            userNationalIdController.text.isNotEmpty &&
-            userEmailController.text.isNotEmpty &&
-            userPasswordController.text.isNotEmpty &&
-            userPhoneController.text.isNotEmpty;
+        return true; // No fields to validate for user details
       case 1:
         return fullAddressController.text.isNotEmpty &&
             spaceController.text.isNotEmpty &&
@@ -69,7 +60,7 @@ class _SellPageState extends State<SellPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Please fill out all required fields."),
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.black,
       ),
     );
   }
@@ -81,11 +72,11 @@ class _SellPageState extends State<SellPage> {
     }
 
     final user = {
-      "name": userNameController.text,
-      "national_id": userNationalIdController.text,
-      "email": userEmailController.text,
-      "password": userPasswordController.text,
-      "phone": userPhoneController.text,
+      "name": registeredName,
+      "national_id": registeredNationalId,
+      "email": registeredEmail,
+      "password": registeredPassword,
+      "phone": registeredPhone,
     };
 
     final contract = {
@@ -125,7 +116,7 @@ class _SellPageState extends State<SellPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SuccessPage(selectedRegion: ''),
+        builder: (context) => SuccessPage(selectedRegion: selectedRegion),
       ),
     );
   }
@@ -156,7 +147,7 @@ class _SellPageState extends State<SellPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Add Property"),
-        backgroundColor: Colors.brown,
+        backgroundColor: Colors.blueAccent,
       ),
       body: Stepper(
         currentStep: currentStep,
@@ -184,27 +175,10 @@ class _SellPageState extends State<SellPage> {
             isActive: currentStep >= 0,
             content: Column(
               children: [
-                TextField(
-                  controller: userNameController,
-                  decoration: InputDecoration(labelText: "Name"),
-                ),
-                TextField(
-                  controller: userNationalIdController,
-                  decoration: InputDecoration(labelText: "National ID"),
-                ),
-                TextField(
-                  controller: userEmailController,
-                  decoration: InputDecoration(labelText: "Email"),
-                ),
-                TextField(
-                  controller: userPasswordController,
-                  decoration: InputDecoration(labelText: "Password"),
-                  obscureText: true,
-                ),
-                TextField(
-                  controller: userPhoneController,
-                  decoration: InputDecoration(labelText: "Phone"),
-                ),
+                Text("Name: $registeredName"),
+                Text("National ID: $registeredNationalId"),
+                Text("Email: $registeredEmail"),
+                Text("Phone: $registeredPhone"),
               ],
             ),
           ),
@@ -326,13 +300,13 @@ class _SellPageState extends State<SellPage> {
                   uploadedImages.isNotEmpty
                       ? "Uploaded Images: ${uploadedImages.length}"
                       : "No images uploaded yet.",
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: TextStyle(fontSize: 16, color: Colors.blueAccent),
                 ),
                 ElevatedButton(
                   onPressed: _navigateToUploadImagesPage,
                   child: Text("Upload Images"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown,
+                    backgroundColor: Colors.black,
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                 ),
@@ -366,15 +340,13 @@ class SuccessPage extends StatelessWidget {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-
-
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ForRentHomePage(
-                      selectedRegion: selectedRegion,
-                      userName: registeredName,
-                      destination: "",
+                      selectedRegion: selectedRegion, // القيمة المختارة للمنطقة
+                      userName: registeredName,       // اسم المستخدم
+                      destination: selectedRegion,    // تمرير المنطقة كوجهة
                     ),
                   ),
                       (route) => false,
@@ -382,7 +354,7 @@ class SuccessPage extends StatelessWidget {
               },
               child: Text("Back to Home"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.brown,
+                backgroundColor: Colors.black,
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
             ),

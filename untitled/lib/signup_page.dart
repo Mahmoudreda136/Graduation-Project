@@ -10,6 +10,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController nationalIdController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
@@ -19,12 +21,20 @@ class _SignupPageState extends State<SignupPage> {
     return emailRegex.hasMatch(email);
   }
 
+  // Function to validate phone number format
+  bool _isValidPhone(String phone) {
+    final phoneRegex = RegExp(r'^\d{10,15}$');
+    return phoneRegex.hasMatch(phone);
+  }
+
   void _signup(BuildContext context) async {
     String name = nameController.text.trim();
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
+    String nationalId = nationalIdController.text.trim();
+    String phone = phoneController.text.trim();
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+    if (name.isEmpty || email.isEmpty || password.isEmpty || nationalId.isEmpty || phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("All fields are required!"),
@@ -38,6 +48,16 @@ class _SignupPageState extends State<SignupPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Please enter a valid email address."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!_isValidPhone(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please enter a valid phone number."),
           backgroundColor: Colors.red,
         ),
       );
@@ -65,6 +85,8 @@ class _SignupPageState extends State<SignupPage> {
     registeredName = name;
     registeredEmail = email;
     registeredPassword = password;
+    registeredNationalId = nationalId;
+    registeredPhone = phone;
 
     setState(() {
       _isLoading = false;
@@ -149,6 +171,14 @@ class _SignupPageState extends State<SignupPage> {
                         },
                       ),
                     ),
+                  ),
+                  TextField(
+                    controller: nationalIdController,
+                    decoration: InputDecoration(labelText: "National ID"),
+                  ),
+                  TextField(
+                    controller: phoneController,
+                    decoration: InputDecoration(labelText: "Phone Number"),
                   ),
                   SizedBox(height: 24),
                   _isLoading
