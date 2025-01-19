@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:http/http.dart' as http; // استيراد حزمة http
-import 'dart:convert'; // لتحويل JSON
 import '../globals.dart';
 import 'AddEditPropertyDialog.dart';
+import 'globalforrent.dart';
 
 class DashboardWithLoginPage extends StatefulWidget {
   @override
@@ -14,66 +13,6 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
   bool _isLoggedIn = true; // No password, login is defaulted to true
   String selectedRegion = 'Dahab';
   String selectedCategory = 'For Rent';
-  List<Map<String, dynamic>> userProperties = [];
-
-  @override
-  void initState() {
-    super.initState();
-    fetchProperties(); // جلب البيانات من API عند بدء التشغيل
-  }
-
-  // دالة لجلب العقارات من API
-  Future<void> fetchProperties() async {
-    final response = await http.get(
-      Uri.parse('https://your-api-endpoint.com/properties?region=$selectedRegion&category=$selectedCategory'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        userProperties = List<Map<String, dynamic>>.from(data)
-            .where((property) => property['user']['email'] == registeredEmail)
-            .toList();
-      });
-    } else {
-      throw Exception('Failed to load properties');
-    }
-  }
-
-  // دالة لتحديث عقار
-  Future<void> updateProperty(Map<String, dynamic> updatedProperty, int index) async {
-    final response = await http.put(
-      Uri.parse('https://your-api-endpoint.com/properties/${updatedProperty['id']}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(updatedProperty),
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        userProperties[index] = updatedProperty;
-      });
-    } else {
-      throw Exception('Failed to update property');
-    }
-  }
-
-  // دالة لحذف عقار
-  Future<void> deleteProperty(int index) async {
-    final propertyId = userProperties[index]['id'];
-    final response = await http.delete(
-      Uri.parse('https://your-api-endpoint.com/properties/$propertyId'),
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        userProperties.removeAt(index);
-      });
-    } else {
-      throw Exception('Failed to delete property');
-    }
-  }
 
   void _showEditPropertyDialog(Map<String, dynamic> property, int index) {
     showDialog(
@@ -82,8 +21,13 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
         return AddEditPropertyDialog(
           title: "Edit Property",
           property: property,
-          onConfirm: (updatedProperty) async {
-            await updateProperty(updatedProperty, index);
+          onConfirm: (updatedProperty) {
+            setState(() {
+              RegionData.properties[selectedRegion]![selectedCategory]![index] = {
+                ...property, // الاحتفاظ بالبيانات القديمة
+                ...updatedProperty, // تحديث الحقول
+              };
+            });
           },
         );
       },
@@ -102,8 +46,10 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
             child: Text("Cancel"),
           ),
           ElevatedButton(
-            onPressed: () async {
-              await deleteProperty(index);
+            onPressed: () {
+              setState(() {
+                RegionData.properties[selectedRegion]![selectedCategory]!.removeAt(index);
+              });
               Navigator.pop(context);
             },
             child: Text("Delete"),
@@ -113,18 +59,18 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
     );
   }
 
-  Widget _buildStatisticsSection() {
+  Widget _buildStatisticsSection(List<dynamic> userProperties) {
     // Filter properties by category and user
     final forRentCount = userProperties
-        .where((property) => property['category'] == 'For Rent')
+        .where((property) => property['category'] == 'For Rent' && property['user']['email'] == registeredEmail)
         .length;
 
     final forSaleCount = userProperties
-        .where((property) => property['category'] == 'For Sale')
+        .where((property) => property['category'] == 'For Sale' && property['user']['email'] == registeredEmail)
         .length;
 
     final hotelsCount = userProperties
-        .where((property) => property['category'] == 'Hotels')
+        .where((property) => property['category'] == 'Hotels' && property['user']['email'] == registeredEmail)
         .length;
 
     return Card(
@@ -208,6 +154,11 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter the properties for the selected category and current user
+    final userProperties = RegionData.properties[selectedRegion]?[selectedCategory]?.where((property) {
+      return property['user']['email'] == registeredEmail;
+    }).toList() ?? [];
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Dashboard"),
@@ -222,7 +173,7 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
               children: [
                 DropdownButton<String>(
                   value: selectedRegion,
-                  items: ['Dahab', 'Saint Catherine', 'Sharm El Sheikh', 'El Tor'].map((region) {
+                  items: RegionData.properties.keys.map((region) {
                     return DropdownMenuItem(
                       value: region,
                       child: Text(region),
@@ -231,7 +182,6 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
                   onChanged: (value) {
                     setState(() {
                       selectedRegion = value!;
-                      fetchProperties(); // إعادة جلب البيانات عند تغيير المنطقة
                     });
                   },
                 ),
@@ -246,14 +196,13 @@ class _DashboardWithLoginPageState extends State<DashboardWithLoginPage> {
                   onChanged: (value) {
                     setState(() {
                       selectedCategory = value!;
-                      fetchProperties(); // إعادة جلب البيانات عند تغيير الفئة
                     });
                   },
                 ),
               ],
             ),
             SizedBox(height: 16),
-            _buildStatisticsSection(),
+            _buildStatisticsSection(userProperties),
             SizedBox(height: 16),
             Expanded(
               child: userProperties.isNotEmpty

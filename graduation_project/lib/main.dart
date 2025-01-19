@@ -23,7 +23,8 @@ class MyApp extends StatelessWidget {
         userEmail: registeredEmail,
         userImage: userImage,
       )
-          : OurServicesPage(userName: '', userEmail: '', userImage: ''),
+          : OurServicesPage(userName: '', userEmail: '', userImage: '',),
+
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // استيراد حزمة http
-import 'dart:convert'; // لتحويل JSON
+import 'globalforrent.dart';
 
 class HotelListPage extends StatefulWidget {
   final String destination;
@@ -13,7 +12,7 @@ class HotelListPage extends StatefulWidget {
 }
 
 class _HotelListPageState extends State<HotelListPage> {
-  List<Map<String, dynamic>> hotels = [];
+  late List<Map<String, dynamic>> hotels;
   List<Map<String, dynamic>> filteredHotels = [];
   String searchPlaceName = '';
   String searchPrice = '';
@@ -21,24 +20,8 @@ class _HotelListPageState extends State<HotelListPage> {
   @override
   void initState() {
     super.initState();
-    fetchHotels(); // جلب البيانات من API عند بدء التشغيل
-  }
-
-  // دالة لجلب الفنادق من API
-  Future<void> fetchHotels() async {
-    final response = await http.get(
-      Uri.parse('https://your-api-endpoint.com/hotels?destination=${widget.destination}'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        hotels = List<Map<String, dynamic>>.from(data);
-        filteredHotels = List.from(hotels);
-      });
-    } else {
-      throw Exception('Failed to load hotels');
-    }
+    hotels = RegionData.properties[widget.destination]?['Hotels'] ?? [];
+    filteredHotels = List.from(hotels);
   }
 
   void applyFilters() {
@@ -318,7 +301,7 @@ class HotelCard extends StatelessWidget {
           },
         );
       } else if (image is String) {
-        return Image.network( // استخدام Image.network للصور من الإنترنت
+        return Image.asset(
           image,
           width: 120,
           height: 120,
@@ -446,7 +429,7 @@ class HotelDetailsPage extends StatelessWidget {
         fit: BoxFit.cover,
       );
     } else if (image is String) {
-      return Image.network( // استخدام Image.network للصور من الإنترنت
+      return Image.asset(
         image,
         width: 200,
         height: 200,

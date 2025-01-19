@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // استيراد حزمة http
-import 'dart:convert'; // لتحويل JSON
 
 class AddEditPropertyDialog extends StatefulWidget {
   final String title;
@@ -51,23 +49,6 @@ class _AddEditPropertyDialogState extends State<AddEditPropertyDialog> {
 
     // تعيين الحالة الحالية إن وجدت
     selectedStatus = widget.property?["status"] ?? "Available";
-  }
-
-  // دالة لتحديث العقار على الخادم
-  Future<void> updateProperty(Map<String, dynamic> updatedProperty) async {
-    final response = await http.put(
-      Uri.parse('https://your-api-endpoint.com/properties/${widget.property?["id"]}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(updatedProperty),
-    );
-
-    if (response.statusCode == 200) {
-      widget.onConfirm(updatedProperty); // إرجاع البيانات المحدثة
-    } else {
-      throw Exception('Failed to update property');
-    }
   }
 
   @override
@@ -149,8 +130,8 @@ class _AddEditPropertyDialogState extends State<AddEditPropertyDialog> {
           child: Text("Cancel"),
         ),
         ElevatedButton(
-          onPressed: () async {
-            final updatedProperty = {
+          onPressed: () {
+            widget.onConfirm({
               "address": addressController.text.isNotEmpty
                   ? addressController.text
                   : widget.property?["address"],
@@ -190,9 +171,7 @@ class _AddEditPropertyDialogState extends State<AddEditPropertyDialog> {
                     ? endDateController.text
                     : widget.property?["contract"]?["end_date"],
               },
-            };
-
-            await updateProperty(updatedProperty); // تحديث العقار على الخادم
+            });
             Navigator.pop(context);
           },
           child: Text("Save"),

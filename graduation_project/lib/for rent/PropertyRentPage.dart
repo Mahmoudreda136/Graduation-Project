@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // استيراد حزمة http
-import 'dart:convert'; // لتحويل JSON
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'globalforrent.dart';
 
 class PropertyRentPage extends StatefulWidget {
   final String destination;
@@ -13,7 +13,7 @@ class PropertyRentPage extends StatefulWidget {
 }
 
 class _PropertyRentPageState extends State<PropertyRentPage> {
-  List<Map<String, dynamic>> properties = [];
+  late List<Map<String, dynamic>> properties;
   List<Map<String, dynamic>> filteredProperties = [];
   String searchPlaceName = '';
   String searchPrice = '';
@@ -21,24 +21,8 @@ class _PropertyRentPageState extends State<PropertyRentPage> {
   @override
   void initState() {
     super.initState();
-    fetchProperties(); // جلب البيانات من API عند بدء التشغيل
-  }
-
-  // دالة لجلب العقارات من API
-  Future<void> fetchProperties() async {
-    final response = await http.get(
-      Uri.parse('https://your-api-endpoint.com/properties?destination=${widget.destination}'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        properties = List<Map<String, dynamic>>.from(data);
-        filteredProperties = List.from(properties);
-      });
-    } else {
-      throw Exception('Failed to load properties');
-    }
+    properties = RegionData.properties[widget.destination]?['For Rent'] ?? [];
+    filteredProperties = List.from(properties);
   }
 
   void applyFilters() {
@@ -324,7 +308,7 @@ class PropertyCard extends StatelessWidget {
           },
         );
       } else if (image is String) {
-        return Image.network( // استخدام Image.network للصور من الإنترنت
+        return Image.asset(
           image,
           width: 120,
           height: 120,
@@ -458,7 +442,7 @@ class PropertyDetailsPage extends StatelessWidget {
         fit: BoxFit.cover,
       );
     } else if (image is String) {
-      return Image.network( // استخدام Image.network للصور من الإنترنت
+      return Image.asset(
         image,
         width: 200,
         height: 200,

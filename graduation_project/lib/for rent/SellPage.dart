@@ -4,8 +4,6 @@ import 'package:graduation_project/for%20rent/upload_image.dart';
 import '../globals.dart';
 import 'globalforrent.dart';
 import 'rent_page.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class SellPage extends StatefulWidget {
   @override
@@ -32,12 +30,11 @@ class _SellPageState extends State<SellPage> {
 
   List<Uint8List> uploadedImages = [];
   int currentStep = 0;
-  bool _isLoading = false; // لإدارة حالة التحميل
 
   bool _validateFieldsForStep(int step) {
     switch (step) {
       case 0:
-        return true; // لا يوجد حقول للتحقق في الخطوة الأولى
+        return true; // No fields to validate for user details
       case 1:
         return fullAddressController.text.isNotEmpty &&
             spaceController.text.isNotEmpty &&
@@ -66,49 +63,6 @@ class _SellPageState extends State<SellPage> {
         backgroundColor: Colors.red,
       ),
     );
-  }
-
-  Future<void> submitPropertyToAPI(Map<String, dynamic> property) async {
-    setState(() {
-      _isLoading = true; // بدء التحميل
-    });
-
-    try {
-      final response = await http.post(
-        Uri.parse('https://your-api-endpoint.com/properties'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(property),
-      ).timeout(Duration(seconds: 10));
-
-      if (response.statusCode == 201) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SuccessPage(selectedRegion: selectedRegion),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to submit property. Status Code: ${response.statusCode}"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("An error occurred: ${e.toString()}"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false; // إيقاف التحميل
-      });
-    }
   }
 
   void _submitProperty() {
@@ -144,12 +98,27 @@ class _SellPageState extends State<SellPage> {
       "status": selectedStatus,
       "price": priceController.text,
       "details": detailsController.text,
-      "images": uploadedImages.map((image) => base64Encode(image)).toList(), // تحويل الصور إلى base64
+      "images": uploadedImages,
       "user": user,
       "contract": contract,
     };
 
-    submitPropertyToAPI(newProperty);
+    if (!RegionData.properties.containsKey(selectedRegion)) {
+      RegionData.properties[selectedRegion] = {};
+    }
+
+    if (!RegionData.properties[selectedRegion]!.containsKey(selectedCategory)) {
+      RegionData.properties[selectedRegion]![selectedCategory] = [];
+    }
+
+    RegionData.properties[selectedRegion]![selectedCategory]!.add(newProperty);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SuccessPage(selectedRegion: selectedRegion),
+      ),
+    );
   }
 
   Future<void> _navigateToUploadImagesPage() async {
@@ -178,12 +147,12 @@ class _SellPageState extends State<SellPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Add Property", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.brown[800],
+        backgroundColor: Colors.brown[800], // لون بني غامق
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.brown[50]!, Colors.brown[100]!],
+            colors: [Colors.brown[50]!, Colors.brown[100]!], // تدرج بني فاتح
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -191,7 +160,6 @@ class _SellPageState extends State<SellPage> {
         child: Stepper(
           currentStep: currentStep,
           onStepContinue: () {
-            if (_isLoading) return; // منع التحميل المتعدد
             if (!_validateFieldsForStep(currentStep)) {
               _showValidationError();
             } else if (currentStep < 3) {
@@ -406,17 +374,6 @@ class _SellPageState extends State<SellPage> {
                         labelText: "Start Date",
                         prefixIcon: Icon(Icons.calendar_today, color: Colors.brown[800]),
                       ),
-                      onTap: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          startDateController.text = "${picked.toLocal()}".split(' ')[0];
-                        }
-                      },
                     ),
                     TextField(
                       controller: endDateController,
@@ -424,17 +381,6 @@ class _SellPageState extends State<SellPage> {
                         labelText: "End Date",
                         prefixIcon: Icon(Icons.calendar_today, color: Colors.brown[800]),
                       ),
-                      onTap: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          endDateController.text = "${picked.toLocal()}".split(' ')[0];
-                        }
-                      },
                     ),
                   ],
                 ),
